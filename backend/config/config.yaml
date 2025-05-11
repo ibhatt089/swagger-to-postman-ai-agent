@@ -1,0 +1,13 @@
+LLM_MODE: local_deepseek
+OPENAI_MODEL: gpt-4o
+TR_MODEL: anthropic.claude-v3.7-sonnet
+LOCAL_MODEL: deepseek-coder:6.7b-instruct
+
+EMBEDDING_MODEL: bge-large-en-v1.5
+EMBEDDING_BATCH_SIZE: 8
+
+CHROMA_PERSIST_DIR: backend/data/vector_cache
+CHROMA_COLLECTION: swagger_postman_vectors
+
+AGENT_LOG_LEVEL: INFO
+MAX_PARALLEL_PROCESSES: 4

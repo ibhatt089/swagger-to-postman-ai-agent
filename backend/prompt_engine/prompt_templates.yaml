@@ -1,0 +1,136 @@
+# Prompt templates used by the Swagger-to-Postman AI Agent
+# These are dynamically selected and injected via prompt_builder.py
+# Variables are inserted via Jinja2-style templating (e.g., {{ endpoints }}, {{ schema_block }})
+
+swagger_to_postman: |
+  You are a QA Automation Assistant. Your job is to create a Postman-compatible test suite
+  for the given Swagger (OpenAPI) specification.
+
+  🧾 Instruction:
+  - Read the full Swagger spec below
+  - Generate a structured Postman collection in JSON format
+  - Cover the following test cases for **each endpoint**:
+    1. ✅ Happy path test with valid inputs
+    2. ❌ Negative test: required field missing
+    3. ❌ Invalid field value (e.g., string instead of number)
+    4. 🔁 Edge case based on parameter min/max, length, format, etc.
+    5. 🔐 Unauthorized access (if security is defined)
+    6. ⚠️ Business logic errors (e.g., 422 from wrong combinations)
+
+  🧠 Swagger (OpenAPI) Spec:
+  {{ swagger_spec }}
+
+  Return only a valid Postman v2 collection JSON.
+
+---
+
+single_endpoint_test: |
+  You are an API testing expert. Based on the Swagger documentation provided for a single endpoint,
+  generate exhaustive test cases in Postman JSON format.
+
+  📌 Test Coverage Checklist:
+  - Happy path
+  - Missing parameter(s)
+  - Invalid parameter type or value
+  - Boundary value analysis
+  - Auth errors (401/403 if applicable)
+  - Server errors (500 handling)
+  - Optional: Performance mock (simulate 429 or timeout)
+
+  📍 Endpoint Spec:
+  {{ endpoint_spec }}
+
+---
+
+multi_test_generation: |
+  You are an LLM-based test scenario generator. Given a list of endpoint definitions and example request/response bodies,
+  output the **test case list only** — do not generate Postman JSON yet.
+
+  📊 Expected Output Format:
+  - Method: <GET|POST|PUT|DELETE>
+  - Path: /api/v1/resource
+  - Scenarios:
+      - "Valid resource creation"
+      - "Missing required header"
+      - "User not authorized"
+      - "Input exceeds length limit"
+      - "Unsupported media type"
+      - "Malformed request body"
+
+  📦 Input:
+  {{ endpoint_list_block }}
+
+---
+
+postman_learning_context: |
+  You are a test strategy assistant. Analyze the existing Postman collection and extract:
+  1. Folder and subfolder structure
+  2. Types of assertions written (e.g., status code, body value, schema match)
+  3. Repetition patterns (e.g., common pre-request scripts, environment usage)
+  4. Parameterization (e.g., variables, collection runners)
+  5. Custom scripts (e.g., JavaScript inside test blocks)
+
+  📄 Postman Collection Input:
+  {{ postman_json }}
+
+---
+
+swagger_section_summary: |
+  Summarize the following Swagger (OpenAPI) block for ingestion by an LLM agent.
+  Output must include:
+  - Endpoint path and method(s)
+  - Query, path, and body parameters with types
+  - Response codes and their meaning
+  - Security or auth flags
+
+  This output will be used as memory context for generation.
+
+  📍 Swagger Block:
+  {{ swagger_sub_block }}
+
+---
+
+rephrased_prompt_for_tr_api: |
+  You are an Anthropic Claude-compatible assistant operating behind an internal corporate API.
+  Follow the instruction and use the provided context to output the correct Postman tests.
+
+  ⚙️ Settings:
+  - Tokens: up to 128,000
+  - Temperature: 0.1
+  - Top_p: 0.9
+  - System prompt enabled
+
+  📝 Task:
+  {{ instruction }}
+
+  📦 Context:
+  {{ context_block }}
+
+---
+
+error_case_enumeration: |
+  You are an API contract analyzer. Your task is to read a Swagger endpoint definition and enumerate
+  all potential test cases where the API could respond with error codes such as 400, 401, 403, 422, 500.
+
+  For each error code, include:
+  - Cause or trigger condition
+  - Whether it's a client or server side issue
+  - Parameters involved (if any)
+  - Suggested test scenario name
+
+  📍 Endpoint:
+  {{ endpoint_block }}
+
+---
+
+performance_test_hints: |
+  Suggest 3–5 performance or stress test scenarios based on the API definition.
+  Consider:
+    - Rate limiting
+    - Throttling
+    - Pagination
+    - Query size
+    - Parallel request issues
+
+  ⚙️ Input:
+  {{ performance_block }}
